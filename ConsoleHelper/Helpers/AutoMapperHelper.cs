@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
 using ConsoleHelper.Models;
 using ConsoleHelper.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ConsoleHelper.Helper
+namespace ConsoleHelper.Helpers
 {
     public class AutoMapperHelper
     {
