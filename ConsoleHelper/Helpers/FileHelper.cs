@@ -56,9 +56,18 @@ namespace ConsoleHelper.Helpers
             Directory.Delete(path, false);
         }
 
-        public async static Task<IEnumerable<FileInfo>> RecursiveAsync(DirectoryInfo root)
+        public async static Task<IEnumerable<DirectoryInfo>> GetAllDirectory(DirectoryInfo root)
         {
-            var tasks = root.GetDirectories().Select(RecursiveAsync);
+            var tasks = root.GetDirectories().Select(GetAllDirectory);
+            var directorys = (await Task.WhenAll(tasks)).SelectMany(x => x);
+            var result = root.GetDirectories().Concat(directorys);
+
+            return result;
+        }
+
+        public async static Task<IEnumerable<FileInfo>> GetAllFiles(DirectoryInfo root)
+        {
+            var tasks = root.GetDirectories().Select(GetAllFiles);
             var files = (await Task.WhenAll(tasks)).SelectMany(x => x);
             var result = root.GetFiles().Concat(files);
 
