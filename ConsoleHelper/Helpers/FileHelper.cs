@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ConsoleHelper.Helpers
 {
@@ -51,6 +54,15 @@ namespace ConsoleHelper.Helpers
             }
 
             Directory.Delete(path, false);
+        }
+
+        public async static Task<IEnumerable<FileInfo>> RecursiveAsync(DirectoryInfo root)
+        {
+            var tasks = root.GetDirectories().Select(RecursiveAsync);
+            var files = (await Task.WhenAll(tasks)).SelectMany(x => x);
+            var result = root.GetFiles().Concat(files);
+
+            return result;
         }
     }
 }

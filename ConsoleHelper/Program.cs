@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
 using ConsoleHelper.Helpers;
+using System.Diagnostics;
 
 namespace ConsoleHelper
 {
@@ -17,31 +18,42 @@ namespace ConsoleHelper
     {
         static void Main(string[] args)
         {
-            GetTable().WriteToExcelFile(new FileInfo(@"E:/test.xlsx"));
+            var watch = Stopwatch.StartNew();
+            var result = GetAllFiles(@"D:\Repos\MicrosoftDocs\docs").ToList();
+            watch.Stop();
+            Console.WriteLine(watch.ElapsedMilliseconds);
+            watch = Stopwatch.StartNew();
+            var result1 = RecursiveAsync(new DirectoryInfo(@"D:\Repos\MicrosoftDocs\docs")).Result.ToList();
+            Console.WriteLine(watch.ElapsedMilliseconds);
+            watch.Stop();
             Console.WriteLine("End...");
             Console.Read();
         }
 
-        static DataTable GetTable()
+        /// <summary>  
+        /// 列出指定目录下及所其有子目录及子目录里更深层目录里的文件（需要递归）  
+        /// </summary>  
+        /// <param name="path"></param>  
+        public static IEnumerable<DirectoryInfo> GetAllFiles(string path)
         {
-            // Here we create a DataTable with four columns.
-            DataTable table = new DataTable();
-            table.Columns.Add("Dosage", typeof(int));
-            table.Columns.Add("Drug", typeof(string));
-            table.Columns.Add("Patient", typeof(string));
-            table.Columns.Add("Date", typeof(DateTime));
+            DirectoryInfo dir = new DirectoryInfo(path);
 
-            for (var i = 0; i < 200000; i++)
+            DirectoryInfo[] subDir = dir.GetDirectories();
+            foreach (DirectoryInfo d in subDir)
             {
-            // Here we add five DataRows.
-            table.Rows.Add(25, "Indocin", "David", DateTime.Now);
-            table.Rows.Add(50, "Enebrel", "Sam", DateTime.Now);
-            table.Rows.Add(10, "Hydralazine", "Christoff", DateTime.Now);
-            table.Rows.Add(21, "Combivent", "Janet", DateTime.Now);
-            table.Rows.Add(100, "Dilantin", "Melanie", DateTime.Now);
-
+                subDir.Concat(GetAllFiles(d.FullName));
             }
-            return table;
+
+            return subDir;
+        }
+
+        private async static Task<IEnumerable<FileInfo>> RecursiveAsync(DirectoryInfo root)
+        {
+            var tasks = root.GetDirectories().Select(RecursiveAsync);
+            var files = (await Task.WhenAll(tasks)).SelectMany(x => x);
+            var result = root.GetFiles().Concat(files);
+
+            return result;
         }
     }
 }
