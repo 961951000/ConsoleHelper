@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace ConsoleHelper.Helpers
 {
-    public static class EPPLusExtensions
+    public static class EPPlusExtensions
     {
         public static DataTable ToDataTable(this ExcelPackage package, bool hasHeader = true)
         {
