@@ -85,7 +85,7 @@
     <Compile Include="Helpers\AutoMapperHelper.cs" />
     <Compile Include="Helpers\DataTableExtensions.cs" />
     <Compile Include="Helpers\EmailNotificationAdapter.cs" />
-    <Compile Include="Helpers\EPPLusExtensions.cs" />
+    <Compile Include="Helpers\EPPlusExtensions.cs" />
     <Compile Include="Helpers\EPPlusHelper.cs" />
     <Compile Include="Helpers\ExcelHelper.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
