@@ -71,6 +71,9 @@
     <Reference Include="Mono.Reflection, Version=1.1.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Reflection.1.1.0.0\lib\Mono.Reflection.dll</HintPath>
     </Reference>
+    <Reference Include="Octokit, Version=0.28.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -89,6 +92,7 @@
     <Compile Include="Helpers\EPPlusHelper.cs" />
     <Compile Include="Helpers\ExcelHelper.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
+    <Compile Include="Helpers\GitHubManager.cs" />
     <Compile Include="Helpers\WeekHelper.cs" />
     <Compile Include="Models\Author.cs" />
     <Compile Include="Models\Book.cs" />
