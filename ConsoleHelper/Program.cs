@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using ConsoleHelper.Helpers;
+using System.Threading.Tasks;
+using Octokit;
+using System.Collections.Generic;
 
 namespace ConsoleHelper
 {

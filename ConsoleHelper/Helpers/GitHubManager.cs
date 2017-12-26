@@ -1,9 +1,10 @@
-﻿using Octokit;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Octokit;
 
 namespace ConsoleHelper.Helpers
 {
@@ -12,7 +13,14 @@ namespace ConsoleHelper.Helpers
         private readonly IGitHubClient _githubClient;
         public GitHubManager()
         {
-            _githubClient = _githubClient ?? new GitHubClient(new ProductHeaderValue("ApplicationName"));
+            if (_githubClient == null)
+            {
+                var tokens = ConfigurationManager.AppSettings["GitHubTokens"].Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                _githubClient = new GitHubClient(new ProductHeaderValue("ApplicationName"))
+                {
+                    Credentials = new Credentials(tokens.FirstOrDefault())
+                };
+            }
         }
         public async Task<IEnumerable<User>> GetUserListAsync(string gitHubTokens)
         {
@@ -20,6 +28,25 @@ namespace ConsoleHelper.Helpers
             var tasks = tokens.Select(GetCurrentUserAsync);
 
             return await Task.WhenAll(tasks);
+        }
+
+        public async Task<int> GetPullRequestNumberFromShaAsync(string owner, string name, string sha)
+        {
+            var requiredPullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
+            return requiredPullRequest.Number;
+        }
+
+        public async Task<IEnumerable<PullRequest>> GetAllOpenPullRequestsAsync(string owner, string name)
+        {
+            return await _githubClient.PullRequest.GetAllForRepository(owner, name);
+        }
+
+        private async Task<PullRequest> GetPullRequest(string owner, string name, string sha)
+        {
+            var pullRequests = await GetAllOpenPullRequestsAsync(owner, name);
+            var requiredPullRequest = pullRequests.FirstOrDefault(x => x.Head?.Sha != null && x.Head.Sha.Equals(sha));
+
+            return requiredPullRequest;
         }
 
         private async Task<User> GetCurrentUserAsync(string token)
