@@ -47,6 +47,12 @@ namespace ConsoleHelper.Helpers
             return await _githubClient.PullRequest.GetAllForRepository(owner, name);
         }
 
+        private async Task<string> GetFileContent(string owner, string name, PullRequestFile file)
+        {
+            var blob = await _githubClient.Git.Blob.Get(owner, name, file.Sha);
+            var fileData = Convert.FromBase64String(blob.Content);
+            return Encoding.UTF8.GetString(fileData);
+        }
         private async Task<PullRequest> GetPullRequest(string owner, string name, string sha)
         {
             var pullRequests = await GetAllOpenPullRequestsAsync(owner, name);
