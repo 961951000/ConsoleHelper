@@ -14,7 +14,6 @@ namespace ConsoleHelper
         static void Main(string[] args)
         {
 
-            var result = Path.AltDirectorySeparatorChar;
             Console.WriteLine("End...");
             Console.Read();
         }
