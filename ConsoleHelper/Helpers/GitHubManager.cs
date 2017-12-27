@@ -10,18 +10,24 @@ namespace ConsoleHelper.Helpers
 {
     public class GitHubManager
     {
-        private readonly IGitHubClient _githubClient;
+        public readonly IGitHubClient _githubClient;
+
         public GitHubManager()
         {
-            if (_githubClient == null)
-            {
-                var tokens = ConfigurationManager.AppSettings["GitHubTokens"].Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                _githubClient = new GitHubClient(new ProductHeaderValue("ApplicationName"))
-                {
-                    Credentials = new Credentials(tokens.FirstOrDefault())
-                };
-            }
+            _githubClient = _githubClient ?? InitializeGithubClient();
         }
+
+        public static IGitHubClient InitializeGithubClient()
+        {
+            var tokens = ConfigurationManager.AppSettings["GitHubTokens"].Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+            var githubClient = new GitHubClient(new ProductHeaderValue("ApplicationName"))
+            {
+                Credentials = new Credentials(tokens.FirstOrDefault())
+            };
+
+            return githubClient;
+        }
+
         public async Task<IEnumerable<User>> GetUserListAsync(string gitHubTokens)
         {
             var tokens = gitHubTokens.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
