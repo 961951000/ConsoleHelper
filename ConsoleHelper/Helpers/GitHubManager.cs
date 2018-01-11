@@ -28,13 +28,7 @@ namespace ConsoleHelper.Helpers
             return githubClient;
         }
 
-        public async Task<string> GetPullRequestBranchAsync(string owner, string name, string sha)
-        {
-            var pullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
-            return pullRequest?.Base.Ref;
-        }
-
-        public async Task<IEnumerable<User>> GetUserListAsync(string gitHubTokens)
+        public async Task<IEnumerable<KeyValuePair<string, User>>> GetUserListAsync(string gitHubTokens)
         {
             var tokens = gitHubTokens.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
             var tasks = tokens.Select(GetCurrentUserAsync);
@@ -75,11 +69,11 @@ namespace ConsoleHelper.Helpers
             return requiredPullRequest;
         }
 
-        private async Task<User> GetCurrentUserAsync(string token)
+        private async Task<KeyValuePair<string, User>> GetCurrentUserAsync(string token)
         {
             _githubClient.Connection.Credentials = new Credentials(token);
 
-            return await _githubClient.User.Current();
+            return new KeyValuePair<string, User>(token, await _githubClient.User.Current());
         }
     }
 }
