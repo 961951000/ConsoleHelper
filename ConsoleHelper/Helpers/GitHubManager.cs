@@ -95,7 +95,7 @@ namespace ConsoleHelper.Helpers
             return gitHubTokens[randomTokenPosition].Trim();
         }
 
-        public async Task<IEnumerable<Label>> HasLabelsInCheckListAsync(string owner, string name, int pullRequestNumber, params string[] labelsToCheck)
+        public async Task<IEnumerable<Label>> GetLabelsFromRequestNumberAsync(string owner, string name, int pullRequestNumber, params string[] labelsToCheck)
         {
             var issue = await _githubClient.Issue.Get(owner, name, pullRequestNumber);
 
