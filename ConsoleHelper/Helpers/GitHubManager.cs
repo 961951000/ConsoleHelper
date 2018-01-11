@@ -10,22 +10,24 @@ namespace ConsoleHelper.Helpers
 {
     public class GitHubManager
     {
+        public readonly IEnumerable<string> _gitHubTokens;
+
         public readonly IGitHubClient _githubClient;
 
         public GitHubManager()
         {
-            _githubClient = _githubClient ?? InitializeGithubClient();
+            _gitHubTokens = ConfigurationManager.AppSettings["GitHubTokens"].Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+            _githubClient = new GitHubClient(new ProductHeaderValue("ApplicationName"))
+            {
+                Credentials = new Credentials(_gitHubTokens.FirstOrDefault())
+            };
         }
 
-        public static IGitHubClient InitializeGithubClient()
+        public void InitializeGithubClient()
         {
-            var tokens = ConfigurationManager.AppSettings["GitHubTokens"].Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-            var githubClient = new GitHubClient(new ProductHeaderValue("ApplicationName"))
-            {
-                Credentials = new Credentials(tokens.FirstOrDefault())
-            };
-
-            return githubClient;
+            var gitHubToken = _githubClient.Connection.Credentials.GetToken();
+            var tempTokensList = string.IsNullOrWhiteSpace(gitHubToken) ? _gitHubTokens : _gitHubTokens.Except(new List<string> { gitHubToken });
+            _githubClient.Connection.Credentials = new Credentials(PickRandom(tempTokensList.ToList()));
         }
 
         public async Task<IEnumerable<KeyValuePair<string, User>>> GetUserListAsync(string gitHubTokens)
@@ -41,7 +43,7 @@ namespace ConsoleHelper.Helpers
             var pullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
             return pullRequest?.Base.Ref;
         }
-        
+
         public async Task<int> GetPullRequestNumberFromShaAsync(string owner, string name, string sha)
         {
             var requiredPullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
@@ -80,6 +82,13 @@ namespace ConsoleHelper.Helpers
             _githubClient.Connection.Credentials = new Credentials(token);
 
             return new KeyValuePair<string, User>(token, await _githubClient.User.Current());
+        }
+
+        private string PickRandom(IList<string> gitHubTokens)
+        {
+            var random = new Random();
+            var randomTokenPosition = random.Next(0, gitHubTokens.Count);
+            return gitHubTokens[randomTokenPosition].Trim();
         }
     }
 }
