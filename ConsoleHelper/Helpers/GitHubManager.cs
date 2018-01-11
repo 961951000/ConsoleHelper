@@ -36,6 +36,12 @@ namespace ConsoleHelper.Helpers
             return await Task.WhenAll(tasks);
         }
 
+        public async Task<string> GetPullRequestBranchAsync(string owner, string name, string sha)
+        {
+            var pullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
+            return pullRequest?.Base.Ref;
+        }
+        
         public async Task<int> GetPullRequestNumberFromShaAsync(string owner, string name, string sha)
         {
             var requiredPullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
