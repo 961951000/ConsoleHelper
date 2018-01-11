@@ -28,6 +28,12 @@ namespace ConsoleHelper.Helpers
             return githubClient;
         }
 
+        public async Task<string> GetPullRequestBranchAsync(string owner, string name, string sha)
+        {
+            var pullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
+            return pullRequest?.Base.Ref;
+        }
+
         public async Task<IEnumerable<User>> GetUserListAsync(string gitHubTokens)
         {
             var tokens = gitHubTokens.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
@@ -42,6 +48,13 @@ namespace ConsoleHelper.Helpers
             return requiredPullRequest.Number;
         }
 
+        public async Task<IEnumerable<PullRequestFile>> GetPullRequestPropertiesAsync(string owner, string name, int pullRequestNumber)
+        {
+            var pullRequestFiles = await _githubClient.PullRequest.Files(owner, name, pullRequestNumber);
+
+            return pullRequestFiles;
+        }
+
         public async Task<IEnumerable<PullRequest>> GetAllOpenPullRequestsAsync(string owner, string name)
         {
             return await _githubClient.PullRequest.GetAllForRepository(owner, name);
@@ -53,6 +66,7 @@ namespace ConsoleHelper.Helpers
             var fileData = Convert.FromBase64String(blob.Content);
             return Encoding.UTF8.GetString(fileData);
         }
+
         private async Task<PullRequest> GetPullRequest(string owner, string name, string sha)
         {
             var pullRequests = await GetAllOpenPullRequestsAsync(owner, name);

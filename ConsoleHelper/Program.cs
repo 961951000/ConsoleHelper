@@ -13,7 +13,6 @@ namespace ConsoleHelper
     {
         static void Main(string[] args)
         {
-
             Console.WriteLine("End...");
             Console.Read();
         }
