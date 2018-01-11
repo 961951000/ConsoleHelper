@@ -41,12 +41,14 @@ namespace ConsoleHelper.Helpers
         public async Task<string> GetPullRequestBranchAsync(string owner, string name, string sha)
         {
             var pullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
+
             return pullRequest?.Base.Ref;
         }
 
         public async Task<int> GetPullRequestNumberFromShaAsync(string owner, string name, string sha)
         {
             var requiredPullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
+
             return requiredPullRequest.Number;
         }
 
@@ -66,6 +68,7 @@ namespace ConsoleHelper.Helpers
         {
             var blob = await _githubClient.Git.Blob.Get(owner, name, file.Sha);
             var fileData = Convert.FromBase64String(blob.Content);
+
             return Encoding.UTF8.GetString(fileData);
         }
 
@@ -88,7 +91,34 @@ namespace ConsoleHelper.Helpers
         {
             var random = new Random();
             var randomTokenPosition = random.Next(0, gitHubTokens.Count);
+
             return gitHubTokens[randomTokenPosition].Trim();
+        }
+
+        private async Task<TReturnValue> ExecuteGitHubFunction<TReturnValue>(Func<string, string, Task<TReturnValue>> githubActionFunction, string owner, string name)
+        {
+            var attemptCount = 4;
+            while (true)
+            {
+                Exception exception;
+                try
+                {
+                    return await githubActionFunction.Invoke(owner, name);
+                }
+                catch (Exception ex)
+                {
+                    attemptCount--;
+                    InitializeGithubClient();
+                    exception = ex;
+                }
+
+                if (attemptCount <= 0)
+                {
+                    throw exception;
+                }
+
+                await Task.Delay(30000).ConfigureAwait(false);
+            }
         }
     }
 }
