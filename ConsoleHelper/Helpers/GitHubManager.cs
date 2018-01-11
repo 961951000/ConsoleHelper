@@ -95,30 +95,11 @@ namespace ConsoleHelper.Helpers
             return gitHubTokens[randomTokenPosition].Trim();
         }
 
-        private async Task<TReturnValue> ExecuteGitHubFunction<TReturnValue>(Func<string, string, Task<TReturnValue>> githubActionFunction, string owner, string name)
+        public async Task<IEnumerable<Label>> HasLabelsInCheckListAsync(string owner, string name, int pullRequestNumber, params string[] labelsToCheck)
         {
-            var attemptCount = 4;
-            while (true)
-            {
-                Exception exception;
-                try
-                {
-                    return await githubActionFunction.Invoke(owner, name);
-                }
-                catch (Exception ex)
-                {
-                    attemptCount--;
-                    InitializeGithubClient();
-                    exception = ex;
-                }
+            var issue = await _githubClient.Issue.Get(owner, name, pullRequestNumber);
 
-                if (attemptCount <= 0)
-                {
-                    throw exception;
-                }
-
-                await Task.Delay(30000).ConfigureAwait(false);
-            }
+            return issue.Labels;
         }
     }
 }
