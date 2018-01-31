@@ -14,7 +14,7 @@ namespace ConsoleHelper.App_Start
 {
     public static class CompositionRoot
     {
-        private static void Initialize()
+        public static void Initialize()
         {
             InitializeContainer();
         }
