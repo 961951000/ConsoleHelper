@@ -118,10 +118,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\CompositionRoot.cs" />
-    <Compile Include="SimpleInjectorResolver.cs" />
+    <Compile Include="App_Start\SimpleInjectorResolver.cs" />
     <Compile Include="Diagnostics\ApplicationInsightsLogger.cs" />
     <Compile Include="Diagnostics\Entities\AppInsightsOptions.cs" />
     <Compile Include="Diagnostics\Entities\LogEntry.cs" />
+    <Compile Include="Diagnostics\Entities\LogLevel.cs" />
     <Compile Include="Diagnostics\Entities\LogOptions.cs" />
     <Compile Include="Diagnostics\Interface\ILogger.cs" />
     <Compile Include="Diagnostics\Shared\DefaultValues.cs" />

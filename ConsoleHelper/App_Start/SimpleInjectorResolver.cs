@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
 using SimpleInjector;
 
-namespace ConsoleHelper
+namespace ConsoleHelper.App_Start
 {
     public class SimpleInjectorResolver : DefaultDependencyResolver
     {

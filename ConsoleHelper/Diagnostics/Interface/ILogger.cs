@@ -1,9 +1,9 @@
-﻿using Microsoft.ApplicationInsights.DataContracts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ConsoleHelper.Diagnostics.Entities;
 
 namespace ConsoleHelper.Diagnostics.Interface
 {
@@ -30,7 +30,7 @@ namespace ConsoleHelper.Diagnostics.Interface
         //
         // Returns:
         //     true if enabled.
-        bool IsEnabled(SeverityLevel logLevel);
+        bool IsEnabled(LogLevel logLevel);
         //
         // Summary:
         //     Writes a log entry.
@@ -50,6 +50,6 @@ namespace ConsoleHelper.Diagnostics.Interface
         //
         //   formatter:
         //     Function to create a string message of the state and exception.
-        void Log<TState>(SeverityLevel logLevel, TState state, Exception exception, Func<TState, Exception, string> formatter);
+        void Log<TState>(LogLevel logLevel, TState state, Exception exception, Func<TState, Exception, string> formatter);
     }
 }

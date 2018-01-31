@@ -22,7 +22,8 @@ namespace ConsoleHelper.Diagnostics
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
-        public void Log<TState>(SeverityLevel logLevel, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel,  TState state, Exception exception,
+            Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel)) return;
             var logEntry = state as LogEntry;
@@ -36,7 +37,9 @@ namespace ConsoleHelper.Diagnostics
             }
         }
 
-        public bool IsEnabled(SeverityLevel logLevel)
+
+
+        public bool IsEnabled(LogLevel logLevel)
         {
             return logLevel >= _options.LogLevel;
         }
@@ -47,30 +50,28 @@ namespace ConsoleHelper.Diagnostics
         }
 
         #region Private Methods
-        private void LogException<TState>(SeverityLevel logLevel, TState state, Exception exception, Func<TState, Exception, string> formatter)
+
+        private void LogException<TState>(LogLevel logLevel, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             var exceptionTelemetry = new ExceptionTelemetry(exception)
             {
                 Message = formatter(state, exception),
-                SeverityLevel = logLevel
+                SeverityLevel = GetSeverityLevel(logLevel)
             };
             exceptionTelemetry.Context.Properties["Exception"] = exception.ToString();
             _telemetryClient.TrackException(exceptionTelemetry);
         }
 
-        private void LogTrace(SeverityLevel logLevel, LogEntry logEntry)
+        private void LogTrace(LogLevel logLevel,  LogEntry logEntry)
         {
             if (logEntry == null)
-            {
-                _telemetryClient.TrackTrace(DefaultValues.StateNotSetToLogEntry, logLevel, PopulateLogAttributes());
-            }
+                _telemetryClient.TrackTrace(DefaultValues.StateNotSetToLogEntry, GetSeverityLevel(logLevel),
+                    PopulateLogAttributes());
             else
-            {
-                _telemetryClient.TrackTrace(logEntry.Message, logLevel, PopulateLogAttributes(logEntry));
-            }
+                _telemetryClient.TrackTrace(logEntry.Message, GetSeverityLevel(logLevel), PopulateLogAttributes( logEntry));
         }
 
-        private static Dictionary<string, string> PopulateLogAttributes(LogEntry logEntry = null)
+        private static Dictionary<string, string> PopulateLogAttributes( LogEntry logEntry = null)
         {
             var attributes = new Dictionary<string, string>
             {
@@ -83,6 +84,23 @@ namespace ConsoleHelper.Diagnostics
                 attributes?.Add(DefaultValues.CallerMethodName, logEntry.CallerMethodName);
             }
             return attributes;
+        }
+
+        private static SeverityLevel GetSeverityLevel(LogLevel logLevel)
+        {
+            switch (logLevel)
+            {
+                case LogLevel.Critical:
+                    return SeverityLevel.Critical;
+                case LogLevel.Error:
+                    return SeverityLevel.Error;
+                case LogLevel.Warning:
+                    return SeverityLevel.Warning;
+                case LogLevel.Information:
+                    return SeverityLevel.Information;
+                default:
+                    return SeverityLevel.Verbose;
+            }
         }
 
         #endregion

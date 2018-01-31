@@ -32,7 +32,7 @@ namespace ConsoleHelper.App_Start
 
         private static void RegisterServices(Container container)
         {
-            var appInsightsOptions = new AppInsightsOptions { LogLevel = (SeverityLevel)Enum.Parse(typeof(SeverityLevel), ConfigurationManager.AppSettings["LogLevel"]), InstrumentationKey = ConfigurationManager.AppSettings["InstrumentationKey"] };
+            var appInsightsOptions = new AppInsightsOptions { LogLevel = (LogLevel)Enum.Parse(typeof(LogLevel), ConfigurationManager.AppSettings["LogLevel"]), InstrumentationKey = ConfigurationManager.AppSettings["InstrumentationKey"] };
             container.AddApplicationInsightsUsingSimpleInjector().AddAppInsightsLoggingOptions(appInsightsOptions);
         }
     }

@@ -16,6 +16,6 @@ namespace ConsoleHelper.Diagnostics.Entities
         /// <summary>
         /// The minimum or higher log level for logging to occur
         /// </summary>
-        public SeverityLevel LogLevel { get; set; }
+        public LogLevel LogLevel { get; set; }
     }
 }
