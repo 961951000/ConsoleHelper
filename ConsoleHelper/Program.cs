@@ -6,6 +6,11 @@ using Octokit;
 using System.Collections.Generic;
 using System.IO;
 using System.Configuration;
+using SimpleInjector;
+using Microsoft.AspNet.SignalR;
+using ConsoleHelper.Diagnostics.Entities;
+using Microsoft.ApplicationInsights.DataContracts;
+using ConsoleHelper.Diagnostics.Shared;
 
 namespace ConsoleHelper
 {
@@ -13,8 +18,8 @@ namespace ConsoleHelper
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("End...");
-            Console.Read();
+            Console.WriteLine(Guid.NewGuid());
+            Console.ReadLine();
         }
     }
 }
