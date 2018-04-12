@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,29 +9,18 @@ namespace ConsoleHelper.Helpers
 {
     public class GitHubManager
     {
-        public readonly IEnumerable<string> _gitHubTokens;
+        private readonly IGitHubClient _githubClient;
 
-        public readonly IGitHubClient _githubClient;
-
-        public GitHubManager()
+        public GitHubManager(string tokens)
         {
-            _gitHubTokens = ConfigurationManager.AppSettings["GitHubTokens"].Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
             _githubClient = new GitHubClient(new ProductHeaderValue("ApplicationName"))
             {
-                Credentials = new Credentials(_gitHubTokens.FirstOrDefault())
+                Credentials = new Credentials(tokens)
             };
         }
 
-        public void InitializeGithubClient()
+        public async Task<IEnumerable<KeyValuePair<string, User>>> GetUserListAsync(IEnumerable<string> tokens)
         {
-            var gitHubToken = _githubClient.Connection.Credentials.GetToken();
-            var tempTokensList = string.IsNullOrWhiteSpace(gitHubToken) ? _gitHubTokens : _gitHubTokens.Except(new List<string> { gitHubToken });
-            _githubClient.Connection.Credentials = new Credentials(PickRandom(tempTokensList.ToList()));
-        }
-
-        public async Task<IEnumerable<KeyValuePair<string, User>>> GetUserListAsync(string gitHubTokens)
-        {
-            var tokens = gitHubTokens.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
             var tasks = tokens.Select(GetCurrentUserAsync);
 
             return await Task.WhenAll(tasks);
@@ -40,21 +28,21 @@ namespace ConsoleHelper.Helpers
 
         public async Task<string> GetPullRequestBranchAsync(string owner, string name, string sha)
         {
-            var pullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
+            var pullRequest = await GetPullRequest(owner, name, sha);
 
             return pullRequest?.Base.Ref;
         }
 
         public async Task<int> GetPullRequestNumberFromShaAsync(string owner, string name, string sha)
         {
-            var requiredPullRequest = await GetPullRequest(owner, name, sha).ConfigureAwait(false);
+            var requiredPullRequest = await GetPullRequest(owner, name, sha);
 
             return requiredPullRequest.Number;
         }
 
-        public async Task<IEnumerable<PullRequestFile>> GetPullRequestPropertiesAsync(string owner, string name, int pullRequestNumber)
+        public async Task<IEnumerable<PullRequestFile>> GetPullRequestPropertiesAsync(string owner, string name, int number)
         {
-            var pullRequestFiles = await _githubClient.PullRequest.Files(owner, name, pullRequestNumber);
+            var pullRequestFiles = await _githubClient.PullRequest.Files(owner, name, number);
 
             return pullRequestFiles;
         }
@@ -87,17 +75,9 @@ namespace ConsoleHelper.Helpers
             return new KeyValuePair<string, User>(token, await _githubClient.User.Current());
         }
 
-        private string PickRandom(IList<string> gitHubTokens)
+        public async Task<IEnumerable<Label>> GetLabelsFromRequestNumberAsync(string owner, string name, int number)
         {
-            var random = new Random();
-            var randomTokenPosition = random.Next(0, gitHubTokens.Count);
-
-            return gitHubTokens[randomTokenPosition].Trim();
-        }
-
-        public async Task<IEnumerable<Label>> GetLabelsFromRequestNumberAsync(string owner, string name, int pullRequestNumber, params string[] labelsToCheck)
-        {
-            var issue = await _githubClient.Issue.Get(owner, name, pullRequestNumber);
+            var issue = await _githubClient.Issue.Get(owner, name, number);
 
             return issue.Labels;
         }
