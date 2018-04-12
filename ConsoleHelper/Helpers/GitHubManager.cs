@@ -101,5 +101,58 @@ namespace ConsoleHelper.Helpers
 
             return issue.Labels;
         }
+
+        public async Task<Reference> CreateBranchAsync(string owner, string name, string branch, string baseRef)
+        {
+            var master = await _githubClient.Repository.Branch.Get(owner, name, baseRef);
+
+            return await _githubClient.Git.Reference.Create(owner, name, new NewReference($"refs/heads/{branch}", master.Commit.Sha));
+        }
+
+        public async Task DeleteBranchAsync(string owner, string name, string branch)
+        {
+            await _githubClient.Git.Reference.Delete(owner, name, $"heads/{branch}");
+        }
+
+        public async Task<PullRequest> CreatePullRequestAsync(string owner, string name, string title, string branch, string baseRef)
+        {
+            return await _githubClient.PullRequest.Create(owner, name, new NewPullRequest(title, branch, baseRef));
+        }
+
+        public async Task OpenPullRequestAsync(string owner, string name, int number)
+        {
+            await _githubClient.PullRequest.Update(owner, name, number, new PullRequestUpdate { State = ItemState.Open });
+        }
+
+        public async Task ClosePullRequestAsync(string owner, string name, int number)
+        {
+            await _githubClient.PullRequest.Update(owner, name, number, new PullRequestUpdate { State = ItemState.Closed });
+        }
+
+        public async Task<RepositoryContentChangeSet> CreateFileAsync(string owner, string name, string path, string message, string content, string branch)
+        {
+            return await _githubClient.Repository.Content.CreateFile(owner, name, path, new CreateFileRequest(message, content, branch));
+        }
+
+        public async Task DeleteFileAsync(string owner, string name, string path, string message, string content, string branch)
+        {
+            await _githubClient.Repository.Content.DeleteFile(owner, name, path, new DeleteFileRequest(message, content, branch));
+        }
+
+        public async Task<RepositoryContentChangeSet> UpdateFileAsync(string owner, string name, string path, string message, string content, string branch)
+        {
+            var existingFile = await _githubClient.Repository.Content.GetAllContentsByRef(owner, name, path, branch);
+
+            return await _githubClient.Repository.Content.UpdateFile(owner, name, path, new UpdateFileRequest(message, content, existingFile.First().Sha, branch));
+        }
+
+        public async Task Merge(string owner, string name, int number, string commitTitle, string commitMessage)
+        {
+            await _githubClient.PullRequest.Merge(owner, name, number, new MergePullRequest
+            {
+                CommitTitle = commitTitle,
+                CommitMessage = commitMessage
+            });
+        }
     }
 }
